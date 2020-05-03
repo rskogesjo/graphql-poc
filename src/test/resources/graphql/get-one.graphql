@@ -1,0 +1,7 @@
+{
+    getOne(id: 1) {
+        id
+        name
+        age
+    }
+}

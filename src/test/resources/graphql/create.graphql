@@ -1,0 +1,7 @@
+mutation {
+    createPerson(name: "Robin", age: 34) {
+        id,
+        name,
+        age
+    }
+}
