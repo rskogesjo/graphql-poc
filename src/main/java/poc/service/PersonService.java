@@ -1,10 +1,10 @@
-package poc;
+package poc.service;
 
-import poc.model.Person;
-import poc.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import poc.model.Person;
+import poc.repository.PersonRepository;
 
 import java.util.List;
 import java.util.Optional;

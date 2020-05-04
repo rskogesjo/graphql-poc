@@ -1,10 +1,10 @@
 package poc.interaction;
 
-import poc.model.Person;
-import poc.PersonService;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import poc.model.Person;
+import poc.service.PersonService;
 
 @Component
 public class PersonMutationResolver implements GraphQLMutationResolver {
