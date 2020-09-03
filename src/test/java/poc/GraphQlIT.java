@@ -1,8 +1,6 @@
 package poc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphql.spring.boot.test.GraphQLResponse;
 import com.graphql.spring.boot.test.GraphQLTestTemplate;
 import org.junit.Test;
@@ -25,15 +23,12 @@ public class GraphQlIT {
     @Autowired
     private GraphQLTestTemplate graphQLTestTemplate;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Test
     public void canCreatePerson() throws IOException {
-        final GraphQLResponse rawResponse = graphQLTestTemplate.postForResource("graphql/create.graphql");
+        GraphQLResponse rawResponse = graphQLTestTemplate.postForResource("graphql/create.graphql");
 
-        final JsonNode response = parseResponse(rawResponse.getRawResponse().getBody());
-        final JsonNode createdPersonNode = response.path("data").path("createPerson");
+        JsonNode response = rawResponse.readTree();
+        JsonNode createdPersonNode = response.path("data").path("createPerson");
 
         assertTrue(rawResponse.isOk());
         assertThat(createdPersonNode.path("id").asInt(), equalTo(1));
@@ -43,14 +38,14 @@ public class GraphQlIT {
 
     @Test
     public void canGetSeveralPeople() throws IOException {
-        final int expectedNumberOfPeople = 5;
+        int expectedNumberOfPeople = 5;
 
         for (int i = 0; i < expectedNumberOfPeople; i++) {
             graphQLTestTemplate.postForResource("graphql/create.graphql");
         }
 
-        final GraphQLResponse rawResponse = graphQLTestTemplate.postForResource("graphql/get-all.graphql");
-        final JsonNode response = parseResponse(rawResponse.getRawResponse().getBody());
+        GraphQLResponse rawResponse = graphQLTestTemplate.postForResource("graphql/get-all.graphql");
+        JsonNode response = rawResponse.readTree();
 
         assertTrue(rawResponse.isOk());
         assertThat(response.path("data").path("getAll").size(), equalTo(expectedNumberOfPeople));
@@ -60,18 +55,14 @@ public class GraphQlIT {
     public void canGetSinglePerson() throws IOException {
         graphQLTestTemplate.postForResource("graphql/create.graphql");
 
-        final GraphQLResponse rawResponse = graphQLTestTemplate.postForResource("graphql/get-one.graphql");
+        GraphQLResponse rawResponse = graphQLTestTemplate.postForResource("graphql/get-one.graphql");
 
-        final JsonNode response = parseResponse(rawResponse.getRawResponse().getBody());
-        final JsonNode getSinglePersonNode = response.path("data").path("getOne");
+        JsonNode response = rawResponse.readTree();
+        JsonNode getSinglePersonNode = response.path("data").path("getOne");
 
         assertTrue(rawResponse.isOk());
         assertThat(getSinglePersonNode.path("id").asInt(), equalTo(1));
         assertThat(getSinglePersonNode.path("name").asText(), equalTo("Robin"));
         assertThat(getSinglePersonNode.path("age").asInt(), equalTo(34));
-    }
-
-    private JsonNode parseResponse(String rawResponse) throws JsonProcessingException {
-        return objectMapper.readTree(rawResponse);
     }
 }
