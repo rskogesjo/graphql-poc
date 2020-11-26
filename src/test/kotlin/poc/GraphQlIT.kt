@@ -36,7 +36,6 @@ class GraphQlIT {
     fun `can get several people`() {
         val expectedNumberOfPeople = 5
 
-
         repeat(expectedNumberOfPeople) { graphQLTestTemplate.postForResource("graphql/create.graphql") }
 
         val rawResponse = graphQLTestTemplate.postForResource("graphql/get-all.graphql")
