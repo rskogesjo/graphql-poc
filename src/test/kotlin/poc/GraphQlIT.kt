@@ -20,6 +20,19 @@ class GraphQlIT {
     private lateinit var graphQLTestTemplate: GraphQLTestTemplate
 
     @Test
+    fun `can create person`() {
+        val rawResponse = graphQLTestTemplate.postForResource("graphql/create.graphql")
+
+        val response = rawResponse.readTree()
+        val createdPersonNode = response.path("data").path("createPerson")
+
+        assertTrue(rawResponse.isOk)
+        assertThat(createdPersonNode.path("id").asInt(), equalTo(1))
+        assertThat(createdPersonNode.path("name").asText(), equalTo("Robin"))
+        assertThat(createdPersonNode.path("age").asInt(), equalTo(34))
+    }
+
+    @Test
     fun `can get several people`() {
         val expectedNumberOfPeople = 5
 
