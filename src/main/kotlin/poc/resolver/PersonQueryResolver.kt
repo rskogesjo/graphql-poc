@@ -1,4 +1,4 @@
-package poc.interaction
+package poc.resolver
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import org.springframework.stereotype.Component
