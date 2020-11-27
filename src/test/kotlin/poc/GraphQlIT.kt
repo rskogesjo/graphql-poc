@@ -63,8 +63,6 @@ class GraphQlIT {
     @Test
     fun `can subscribe`() {
         val rawResponse = graphQLTestTemplate.postForResource("graphql/subscription.graphql")
-
-        val response = rawResponse.readTree()
         assertTrue(rawResponse.isOk)
     }
 }
