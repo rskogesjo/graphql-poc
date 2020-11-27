@@ -59,4 +59,12 @@ class GraphQlIT {
         assertThat(singlePersonNode.path("name").asText(), equalTo("Robin"))
         assertThat(singlePersonNode.path("age").asInt(), equalTo(34))
     }
+
+    @Test
+    fun `can subscribe`() {
+        val rawResponse = graphQLTestTemplate.postForResource("graphql/subscription.graphql")
+
+        val response = rawResponse.readTree()
+        assertTrue(rawResponse.isOk)
+    }
 }
