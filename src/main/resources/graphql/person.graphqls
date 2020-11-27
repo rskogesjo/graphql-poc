@@ -4,11 +4,21 @@ type Person {
     age: Int
 }
 
+type Bet {
+    horse: String!
+    amount: Int!
+    timestamp: String!
+}
+
 type Query{
     getAll: [Person]
     getOne(id: Int): Person
 }
 
 type Mutation{
-    createPerson(name: String!, age:Int!):Person
+    createPerson(name: String!, age: Int!): Person
+}
+
+type Subscription {
+    bet(horse: String!): Bet
 }

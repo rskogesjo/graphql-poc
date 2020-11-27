@@ -20,6 +20,7 @@
         <graphql.version>5.0.2</graphql.version>
         <graphql-java-tools.version>5.2.4</graphql-java-tools.version>
         <kotlin.version>1.4.20</kotlin.version>
+        <reactor-core.version>3.4.0</reactor-core.version>
     </properties>
 
     <dependencies>
@@ -37,6 +38,12 @@
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java-tools</artifactId>
             <version>${graphql-java-tools.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>${reactor-core.version}</version>
         </dependency>
 
         <dependency>
