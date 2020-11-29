@@ -35,7 +35,7 @@ class GraphQlIT {
     private val objectMapper = jacksonObjectMapper().registerKotlinModule()
 
     @Test
-    fun `can create person`() {
+    fun `create person`() {
         val rawResponse = graphQLTestTemplate.postForResource("graphql/create.graphql")
 
         val response = rawResponse.readTree()
@@ -49,7 +49,7 @@ class GraphQlIT {
     }
 
     @Test
-    fun `can get several people`() {
+    fun `get several people`() {
         val expectedNumberOfPeople = 5
 
         repeat(expectedNumberOfPeople) { graphQLTestTemplate.postForResource("graphql/create.graphql") }
@@ -62,7 +62,7 @@ class GraphQlIT {
     }
 
     @Test
-    fun `can get single person`() {
+    fun `get single person`() {
         graphQLTestTemplate.postForResource("graphql/create.graphql")
 
         val rawResponse = graphQLTestTemplate.postForResource("graphql/get-one.graphql")
@@ -77,7 +77,7 @@ class GraphQlIT {
     }
 
     @Test
-    fun `can subscribe`() {
+    fun `subscribe to data`() {
         val stompClient = WebSocketStompClient(StandardWebSocketClient())
         val response = SubscriptionResponse()
 
