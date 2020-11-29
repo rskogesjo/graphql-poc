@@ -82,23 +82,24 @@ class GraphQlIT {
         val stompClient = WebSocketStompClient(StandardWebSocketClient())
         val response = SubscriptionResponse()
 
-        val webSocketSession = stompClient.webSocketClient.doHandshake(object : TextWebSocketHandler() {
-            override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
-                response.horse = objectMapper.readValue<JsonNode>(message.payload as String)
-                        .path("data")
-                        .path("bet")
-                        .path("horse")
-                        .asText()
-            }
-        }, "ws://localhost:8080/subscriptions").get()
+        val webSocketSession = stompClient.webSocketClient.doHandshake(customWebsocketHandler(response), "ws://localhost:8080/subscriptions").get()
 
         val query = TestUtils.readTestData("graphql/subscription.graphql")
-        val request = GraphQLRequest(query, mapOf(), "")
-
-        webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(request)))
+        webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(query, mapOf(), ""))))
 
         await().atMost(Duration.ofSeconds(5)).until { response.horse == "Lucky Boko" }
     }
 
     private class SubscriptionResponse(var horse: String = "")
+
+    private fun customWebsocketHandler(response: SubscriptionResponse) = object : TextWebSocketHandler() {
+        @Override
+        override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
+            response.horse = objectMapper.readValue<JsonNode>(message.payload as String)
+                    .path("data")
+                    .path("bet")
+                    .path("horse")
+                    .asText()
+        }
+    }
 }
