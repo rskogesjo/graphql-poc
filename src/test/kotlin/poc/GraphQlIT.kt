@@ -79,8 +79,7 @@ class GraphQlIT {
 
     @Test
     fun `can subscribe`() {
-        val client = StandardWebSocketClient()
-        val stompClient = WebSocketStompClient(client)
+        val stompClient = WebSocketStompClient(StandardWebSocketClient())
         val response = SubscriptionResponse()
 
         val webSocketSession = stompClient.webSocketClient.doHandshake(object : TextWebSocketHandler() {
