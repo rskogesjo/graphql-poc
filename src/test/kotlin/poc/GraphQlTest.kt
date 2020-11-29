@@ -28,7 +28,7 @@ import java.time.Duration.ofSeconds
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [Application::class], webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
-class GraphQlIT {
+class GraphQlTest {
     @Autowired
     private lateinit var graphQLTestTemplate: GraphQLTestTemplate
 
