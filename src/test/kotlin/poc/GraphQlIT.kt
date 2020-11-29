@@ -84,11 +84,8 @@ class GraphQlIT {
 
         val webSocketSession = stompClient.webSocketClient.doHandshake(customWebsocketHandler(response), "ws://localhost:8080/subscriptions").get()
 
-        webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(
-                TestUtils.readTestData("graphql/subscription.graphql"),
-                mapOf(),
-                "")))
-        )
+        val payload = TestUtils.readTestData("graphql/subscription.graphql")
+        webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(payload, mapOf(), ""))))
 
         await().atMost(ofSeconds(5)).until { response.horse == "Lucky Boko" }
     }
