@@ -24,7 +24,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.socket.messaging.WebSocketStompClient
 import util.TestUtils
-import java.time.Duration
+import java.time.Duration.ofSeconds
 
 
 @RunWith(SpringRunner::class)
@@ -87,7 +87,7 @@ class GraphQlIT {
         val query = TestUtils.readTestData("graphql/subscription.graphql")
         webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(query, mapOf(), ""))))
 
-        await().atMost(Duration.ofSeconds(5)).until { response.horse == "Lucky Boko" }
+        await().atMost(ofSeconds(5)).until { response.horse == "Lucky Boko" }
     }
 
     private class SubscriptionResponse(var horse: String = "")
