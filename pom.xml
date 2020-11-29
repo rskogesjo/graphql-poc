@@ -21,6 +21,7 @@
         <graphql-java-tools.version>5.2.4</graphql-java-tools.version>
         <kotlin.version>1.4.20</kotlin.version>
         <reactor-core.version>3.4.0</reactor-core.version>
+        <awaitility.version>4.0.3</awaitility.version>
     </properties>
 
     <dependencies>
@@ -72,6 +73,12 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit</artifactId>
             <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
