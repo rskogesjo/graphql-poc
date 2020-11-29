@@ -1,5 +1,5 @@
 subscription {
-    bet(horse: "Lucky Boko") {
+    bet(horse: "Lucky") {
         horse
         amount
         timestamp

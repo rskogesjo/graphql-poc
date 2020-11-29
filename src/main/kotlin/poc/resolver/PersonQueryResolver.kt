@@ -1,12 +1,13 @@
 package poc.resolver
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import poc.service.PersonService
+import poc.repository.PersonRepository
 
 @Component
-class PersonQueryResolver(private var service: PersonService) : GraphQLQueryResolver {
-    fun getAll() = service.getAllPeople()
+class PersonQueryResolver(@Autowired private val repository: PersonRepository) : GraphQLQueryResolver {
+    fun getAll() = repository.findAll()
 
-    fun getOne(id: Int) = service.getPersonById(id)
+    fun getOne(id: Int) = repository.findById(id)
 }

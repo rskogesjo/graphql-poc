@@ -11,5 +11,7 @@ import kotlin.random.Random
 
 @Component
 class PersonSubscriptionResolver : GraphQLSubscriptionResolver {
-    fun bet(horse: String): Publisher<Bet> = interval(ofSeconds(1)).map { Bet(horse, Random.nextInt(), nanoTime().toString()) }
+    fun bet(horse: String): Publisher<Bet> = interval(ofSeconds(2)).map {
+        Bet(horse = horse, amount = Random(System.currentTimeMillis()).nextInt(1, 1000), timestamp = nanoTime().toString())
+    }
 }

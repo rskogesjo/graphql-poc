@@ -86,7 +86,7 @@ class GraphQlIT {
         val payload = TestUtils.readTestData("graphql/subscription.graphql")
         webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(payload, mapOf(), ""))))
 
-        await().atMost(ofSeconds(5)).until { response.horse == "Lucky Boko" }
+        await().atMost(ofSeconds(5)).until { response.horse == "Lucky" }
     }
 
     private class SubscriptionResponse(var horse: String = "")

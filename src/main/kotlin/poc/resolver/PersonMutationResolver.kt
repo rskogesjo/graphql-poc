@@ -4,9 +4,9 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import poc.model.Person
-import poc.service.PersonService
+import poc.repository.PersonRepository
 
 @Component
-class PersonMutationResolver(@Autowired private val service: PersonService) : GraphQLMutationResolver {
-    fun createPerson(name: String, age: Int) = service.savePerson(Person(name = name, age = age))
+class PersonMutationResolver(@Autowired private val repository: PersonRepository) : GraphQLMutationResolver {
+    fun createPerson(name: String, age: Int) = repository.save(Person(name = name, age = age))
 }
