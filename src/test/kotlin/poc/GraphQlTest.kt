@@ -21,7 +21,6 @@ import org.springframework.web.socket.WebSocketMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
-import org.springframework.web.socket.messaging.WebSocketStompClient
 import util.TestUtils
 import java.time.Duration.ofSeconds
 
@@ -78,12 +77,11 @@ class GraphQlTest {
 
     @Test
     fun `subscribe to data`() {
-        val stompClient = WebSocketStompClient(StandardWebSocketClient())
         val response = SubscriptionResponse()
 
-        val webSocketSession = stompClient.webSocketClient.doHandshake(customWebsocketHandler(response), "ws://localhost:8080/subscriptions").get()
-
+        val webSocketSession = StandardWebSocketClient().doHandshake(customWebsocketHandler(response), "ws://localhost:8080/subscriptions").get()
         val payload = TestUtils.readTestData("graphql/subscription.graphql")
+
         webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(payload, mapOf(), ""))))
 
         await().atMost(ofSeconds(5)).until { response.horse == "Lucky" }
