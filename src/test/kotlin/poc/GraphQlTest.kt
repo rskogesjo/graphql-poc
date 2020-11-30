@@ -89,7 +89,7 @@ class GraphQlTest {
         await().atMost(ofSeconds(5)).until { response.horse == "Lucky" }
     }
 
-    private class SubscriptionResponse(var horse: String = "")
+    private data class SubscriptionResponse(var horse: String = "")
 
     private fun customWebsocketHandler(response: SubscriptionResponse) = object : TextWebSocketHandler() {
         @Override
