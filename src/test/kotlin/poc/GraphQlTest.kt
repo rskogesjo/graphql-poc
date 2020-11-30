@@ -7,7 +7,6 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.graphql.spring.boot.test.GraphQLTestTemplate
 import graphql.ExecutionInput
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Awaitility.await
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,7 +22,7 @@ import org.springframework.web.socket.client.WebSocketConnectionManager
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import util.TestUtils
-import java.time.Duration.ofSeconds
+import java.util.concurrent.CompletableFuture
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [Application::class], webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -78,7 +77,7 @@ class GraphQlTest {
 
     @Test
     fun `subscribe to data`() {
-        val response = SubscriptionResponse()
+        val response = CompletableFuture<String>()
 
         WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
             @Override
@@ -93,16 +92,15 @@ class GraphQlTest {
 
             @Override
             override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
-                response.horse = objectMapper.readValue<JsonNode>(message.payload as String)
+                response.complete(objectMapper.readValue<JsonNode>(message.payload as String)
                         .path("data")
                         .path("bet")
                         .path("horse")
                         .asText()
+                )
             }
         }, "ws://localhost:8080/subscriptions").start()
 
-        await().atMost(ofSeconds(5)).until { response.horse == "Lucky" }
+        assertThat(response.get()).isEqualTo("Lucky")
     }
-
-    private data class SubscriptionResponse(var horse: String = "")
 }
