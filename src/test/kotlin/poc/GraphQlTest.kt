@@ -80,9 +80,12 @@ class GraphQlTest {
         val response = SubscriptionResponse()
 
         val webSocketSession = StandardWebSocketClient().doHandshake(customWebsocketHandler(response), "ws://localhost:8080/subscriptions").get()
-        val payload = TestUtils.readTestData("graphql/subscription.graphql")
 
-        webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(payload, mapOf(), ""))))
+        webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(
+                TestUtils.readTestData("graphql/subscription.graphql"),
+                mapOf(),
+                ""
+        ))))
 
         await().atMost(ofSeconds(5)).until { response.horse == "Lucky" }
     }
