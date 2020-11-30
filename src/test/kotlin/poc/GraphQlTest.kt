@@ -77,7 +77,7 @@ class GraphQlTest {
     }
 
     @Test
-    internal fun `subscribe to data`() {
+    internal fun `subscribe over websocket`() {
         val response = CompletableFuture<String>()
 
         WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
