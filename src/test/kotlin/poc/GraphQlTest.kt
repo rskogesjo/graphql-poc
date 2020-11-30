@@ -23,6 +23,7 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import util.TestUtils
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [Application::class], webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -101,6 +102,6 @@ class GraphQlTest {
             }
         }, "ws://localhost:8080/subscriptions").start()
 
-        assertThat(response.get()).isEqualTo("Lucky")
+        assertThat(response.get(5, TimeUnit.SECONDS)).isEqualTo("Lucky")
     }
 }
