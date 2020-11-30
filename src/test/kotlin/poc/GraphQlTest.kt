@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.graphql.spring.boot.test.GraphQLTestTemplate
-import graphql.servlet.internal.GraphQLRequest
+import graphql.ExecutionInput
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.Assert.assertTrue
@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketMessage
 import org.springframework.web.socket.WebSocketSession
+import org.springframework.web.socket.client.WebSocketConnectionManager
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import util.TestUtils
@@ -79,27 +80,29 @@ class GraphQlTest {
     fun `subscribe to data`() {
         val response = SubscriptionResponse()
 
-        val webSocketSession = StandardWebSocketClient().doHandshake(customWebsocketHandler(response), "ws://localhost:8080/subscriptions").get()
+        WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
+            @Override
+            override fun afterConnectionEstablished(session: WebSocketSession) {
+                val executionInput = ExecutionInput
+                        .newExecutionInput()
+                        .query(TestUtils.readTestData("graphql/subscription.graphql"))
+                        .build()
 
-        webSocketSession.sendMessage(TextMessage(objectMapper.writeValueAsString(GraphQLRequest(
-                TestUtils.readTestData("graphql/subscription.graphql"),
-                mapOf(),
-                ""
-        ))))
+                session.sendMessage(TextMessage(objectMapper.writeValueAsString(executionInput)))
+            }
+
+            @Override
+            override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
+                response.horse = objectMapper.readValue<JsonNode>(message.payload as String)
+                        .path("data")
+                        .path("bet")
+                        .path("horse")
+                        .asText()
+            }
+        }, "ws://localhost:8080/subscriptions").start()
 
         await().atMost(ofSeconds(5)).until { response.horse == "Lucky" }
     }
 
     private data class SubscriptionResponse(var horse: String = "")
-
-    private fun customWebsocketHandler(response: SubscriptionResponse) = object : TextWebSocketHandler() {
-        @Override
-        override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
-            response.horse = objectMapper.readValue<JsonNode>(message.payload as String)
-                    .path("data")
-                    .path("bet")
-                    .path("horse")
-                    .asText()
-        }
-    }
 }
