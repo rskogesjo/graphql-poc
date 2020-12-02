@@ -79,7 +79,7 @@ class GraphQlTest {
 
     @Test
     internal fun `subscribe over websocket`() {
-        val response = CompletableFuture<Bet>()
+        val result = CompletableFuture<Bet>()
 
         WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
             @Override
@@ -100,15 +100,14 @@ class GraphQlTest {
                         .toString()
 
                 val bet = objectMapper.readValue(asJson, Bet::class.java)
-
-                response.complete(bet)
+                result.complete(bet)
             }
         }, "ws://localhost:8080/subscriptions").start()
 
-        val result = response.get(5, TimeUnit.SECONDS)
+        val bet = result.get(5, TimeUnit.SECONDS)
 
-        assertThat(result.horse).isEqualTo("Lucky")
-        assertThat(result.amount).isGreaterThan(0)
-        assertThat(result.timestamp.toLong()).isGreaterThan(0)
+        assertThat(bet.horse).isEqualTo("Lucky")
+        assertThat(bet.amount).isGreaterThan(0)
+        assertThat(bet.timestamp.toLong()).isGreaterThan(0)
     }
 }
