@@ -1,3 +1,9 @@
 package poc.model
 
-data class Bet(val horse: String, val amount: Int, val timestamp: String)
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class Bet(
+        @get:JsonProperty("horse") val horse: String,
+        @get:JsonProperty("amount") val amount: Int,
+        @get:JsonProperty("timestamp") val timestamp: String
+)

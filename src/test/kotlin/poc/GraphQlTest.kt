@@ -21,6 +21,7 @@ import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.client.WebSocketConnectionManager
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
+import poc.model.Bet
 import util.TestUtils
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -78,7 +79,7 @@ class GraphQlTest {
 
     @Test
     internal fun `subscribe over websocket`() {
-        val response = CompletableFuture<String>()
+        val response = CompletableFuture<Bet>()
 
         WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
             @Override
@@ -93,15 +94,21 @@ class GraphQlTest {
 
             @Override
             override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
-                response.complete(objectMapper.readValue<JsonNode>(message.payload as String)
+                val asJson = objectMapper.readValue<JsonNode>(message.payload as String)
                         .path("data")
                         .path("bet")
-                        .path("horse")
-                        .asText()
-                )
+                        .toString()
+
+                val bet = objectMapper.readValue(asJson, Bet::class.java)
+
+                response.complete(bet)
             }
         }, "ws://localhost:8080/subscriptions").start()
 
-        assertThat(response.get(5, TimeUnit.SECONDS)).isEqualTo("Lucky")
+        val result = response.get(5, TimeUnit.SECONDS)
+
+        assertThat(result.horse).isEqualTo("Lucky")
+        assertThat(result.amount).isGreaterThan(0)
+        assertThat(result.timestamp.toLong()).isGreaterThan(0)
     }
 }
