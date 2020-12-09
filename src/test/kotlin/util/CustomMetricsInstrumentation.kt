@@ -10,6 +10,7 @@ import poc.model.Bet
 class CustomMetricsInstrumentation : TracingInstrumentation() {
     val map = mutableMapOf<String, Int>()
 
+    @Override
     override fun instrumentDataFetcher(
         dataFetcher: DataFetcher<*>?,
         parameters: InstrumentationFieldFetchParameters?
