@@ -98,7 +98,7 @@ class GraphQlTest {
     }
 
     @Test
-    fun `subscription continues until connection closed`() {
+    internal fun `subscription continues until connection closed`() {
         val desiredElements = 10
 
         assertThat(subscriptionResult(desiredElements, "Lucky", false).size).isEqualTo(desiredElements)
