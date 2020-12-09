@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD
 import org.springframework.test.context.junit4.SpringRunner
+import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketMessage
 import org.springframework.web.socket.WebSocketSession
@@ -22,16 +23,23 @@ import org.springframework.web.socket.client.WebSocketConnectionManager
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import poc.model.Bet
+import util.CustomMetricsInstrumentation
 import util.TestUtils
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
 @RunWith(SpringRunner::class)
-@SpringBootTest(classes = [Application::class], webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(
+    classes = [CustomMetricsInstrumentation::class, Application::class],
+    webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT
+)
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class GraphQlTest {
     @Autowired
     private lateinit var graphQLTestTemplate: GraphQLTestTemplate
+
+    @Autowired
+    private lateinit var customMetricsInstrumentation: CustomMetricsInstrumentation
 
     private val objectMapper = jacksonObjectMapper().registerKotlinModule()
 
@@ -79,15 +87,24 @@ class GraphQlTest {
 
     @Test
     internal fun `subscribe over websocket`() {
-        val result = CompletableFuture<Bet>()
+        assertThat(subscriptionResult(10, "Lucky").size).isEqualTo(10)
+        assertThat(subscriptionResult(15, "Horse").size).isEqualTo(15)
+
+        assertThat(customMetricsInstrumentation.map["Lucky"]).isEqualTo(10)
+        assertThat(customMetricsInstrumentation.map["Horse"]).isEqualTo(15)
+    }
+
+    private fun subscriptionResult(stopAt: Int, subscriptionItem: String): List<Bet> {
+        val result = CompletableFuture<List<Bet>>()
+        val bets = mutableListOf<Bet>()
 
         WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
             @Override
             override fun afterConnectionEstablished(session: WebSocketSession) {
                 val executionInput = ExecutionInput
-                        .newExecutionInput()
-                        .query(TestUtils.readTestData("graphql/subscription.graphql"))
-                        .build()
+                    .newExecutionInput()
+                    .query(TestUtils.readTestData("graphql/subscription.graphql", subscriptionItem))
+                    .build()
 
                 session.sendMessage(TextMessage(objectMapper.writeValueAsString(executionInput)))
             }
@@ -95,19 +112,20 @@ class GraphQlTest {
             @Override
             override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
                 val asJson = objectMapper.readValue<JsonNode>(message.payload as String)
-                        .path("data")
-                        .path("bet")
-                        .toString()
+                    .path("data")
+                    .path("bet")
+                    .toString()
 
                 val bet = objectMapper.readValue(asJson, Bet::class.java)
-                result.complete(bet)
+                bets.add(bet)
+
+                if (bet.amount == stopAt) {
+                    session.close(CloseStatus.NORMAL)
+                    result.complete(bets)
+                }
             }
         }, "ws://localhost:8080/subscriptions").start()
 
-        val bet = result.get(5, TimeUnit.SECONDS)
-
-        assertThat(bet.horse).isEqualTo("Lucky")
-        assertThat(bet.amount).isGreaterThan(0)
-        assertThat(bet.timestamp.toLong()).isGreaterThan(0)
+        return result.get(5, TimeUnit.SECONDS)
     }
 }

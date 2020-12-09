@@ -4,15 +4,13 @@ import com.coxautodev.graphql.tools.GraphQLSubscriptionResolver
 import org.reactivestreams.Publisher
 import org.springframework.stereotype.Component
 import poc.model.Bet
-import reactor.core.publisher.Flux.interval
-import java.lang.System.currentTimeMillis
+import reactor.core.publisher.Flux
 import java.lang.System.nanoTime
-import java.time.Duration.ofSeconds
-import kotlin.random.Random
+import java.time.Duration.ofMillis
 
 @Component
 class PersonSubscriptionResolver : GraphQLSubscriptionResolver {
-    fun bet(horse: String): Publisher<Bet> = interval(ofSeconds(2)).map {
-        Bet(horse = horse, amount = Random(currentTimeMillis()).nextInt(1, 1000), timestamp = nanoTime().toString())
-    }
+    fun bet(horse: String): Publisher<Bet> = Flux.range(1, 1000)
+        .delayElements(ofMillis(50))
+        .map { Bet(horse = horse, amount = it, timestamp = nanoTime().toString()) }
 }
