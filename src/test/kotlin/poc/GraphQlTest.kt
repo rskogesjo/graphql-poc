@@ -87,14 +87,29 @@ class GraphQlTest {
 
     @Test
     internal fun `subscribe over websocket`() {
-        assertThat(subscriptionResult(10, "Lucky").size).isEqualTo(10)
-        assertThat(subscriptionResult(15, "Horse").size).isEqualTo(15)
+        val desiredElementsFirst = 10
+        val desiredElementsSecond = 15
 
-        assertThat(customMetricsInstrumentation.map["Lucky"]).isEqualTo(10)
-        assertThat(customMetricsInstrumentation.map["Horse"]).isEqualTo(15)
+        assertThat(subscriptionResult(desiredElementsFirst, "Lucky").size).isEqualTo(desiredElementsFirst)
+        assertThat(subscriptionResult(desiredElementsSecond, "Horse").size).isEqualTo(desiredElementsSecond)
+
+        assertThat(customMetricsInstrumentation.map["Lucky"]).isEqualTo(desiredElementsFirst)
+        assertThat(customMetricsInstrumentation.map["Horse"]).isEqualTo(desiredElementsSecond)
     }
 
-    private fun subscriptionResult(stopAt: Int, subscriptionItem: String): List<Bet> {
+    @Test
+    fun `subscription continues until connection closed`() {
+        val desiredElements = 10
+
+        assertThat(subscriptionResult(desiredElements, "Lucky", false).size).isEqualTo(desiredElements)
+        assertThat(customMetricsInstrumentation.map["Lucky"]).isGreaterThan(desiredElements)
+    }
+
+    private fun subscriptionResult(
+        desiredNumberOfElements: Int,
+        subscriptionItem: String,
+        closeConnectionWhenSatisfied: Boolean = true
+    ): List<Bet> {
         val result = CompletableFuture<List<Bet>>()
         val bets = mutableListOf<Bet>()
 
@@ -119,8 +134,13 @@ class GraphQlTest {
                 val bet = objectMapper.readValue(asJson, Bet::class.java)
                 bets.add(bet)
 
-                if (bet.amount == stopAt) {
-                    session.close(CloseStatus.NORMAL)
+                if (bet.amount == desiredNumberOfElements) {
+                    if (closeConnectionWhenSatisfied) {
+                        session.close(CloseStatus.NORMAL)
+                    } else {
+                        Thread.sleep(200)
+                    }
+
                     result.complete(bets)
                 }
             }
