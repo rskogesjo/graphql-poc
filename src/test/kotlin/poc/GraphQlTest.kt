@@ -27,6 +27,7 @@ import util.CustomMetricsInstrumentation
 import util.TestUtils
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertNull
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(
@@ -39,7 +40,7 @@ class GraphQlTest {
     private lateinit var graphQLTestTemplate: GraphQLTestTemplate
 
     @Autowired
-    private lateinit var customMetricsInstrumentation: CustomMetricsInstrumentation
+    private lateinit var instrumentation: CustomMetricsInstrumentation
 
     private val objectMapper = jacksonObjectMapper().registerKotlinModule()
 
@@ -87,28 +88,24 @@ class GraphQlTest {
 
     @Test
     internal fun `subscribe over websocket`() {
-        val desiredElementsFirst = 10
-        val desiredElementsSecond = 15
+        val desiredElements = 10
 
-        assertThat(subscriptionResult(desiredElementsFirst, "Lucky").size).isEqualTo(desiredElementsFirst)
-        assertThat(subscriptionResult(desiredElementsSecond, "Horse").size).isEqualTo(desiredElementsSecond)
-
-        assertThat(customMetricsInstrumentation.map["Lucky"]).isEqualTo(desiredElementsFirst)
-        assertThat(customMetricsInstrumentation.map["Horse"]).isEqualTo(desiredElementsSecond)
+        assertThat(subscriptionResult(desiredElements, "Lucky").size).isEqualTo(desiredElements)
+        assertThat(instrumentation.map["Lucky"]).isEqualTo(desiredElements)
     }
 
     @Test
-    internal fun `subscription continues until connection closed`() {
+    internal fun `No emitted elements if subscriber immediately disconnects`() {
         val desiredElements = 10
 
-        assertThat(subscriptionResult(desiredElements, "Lucky", false).size).isEqualTo(desiredElements)
-        assertThat(customMetricsInstrumentation.map["Lucky"]).isGreaterThan(desiredElements)
+        assertThat(subscriptionResult(desiredElements, "Crazy", true).size).isZero
+        assertNull(instrumentation.map["Crazy"])
     }
 
     private fun subscriptionResult(
         desiredNumberOfElements: Int,
         subscriptionItem: String,
-        closeConnectionWhenSatisfied: Boolean = true
+        disconnectImmediately: Boolean = false
     ): List<Bet> {
         val result = CompletableFuture<List<Bet>>()
         val bets = mutableListOf<Bet>()
@@ -122,6 +119,11 @@ class GraphQlTest {
                     .build()
 
                 session.sendMessage(TextMessage(objectMapper.writeValueAsString(executionInput)))
+
+                if (disconnectImmediately) {
+                    session.close(CloseStatus.NORMAL)
+                    result.complete(bets)
+                }
             }
 
             @Override
@@ -135,12 +137,7 @@ class GraphQlTest {
                 bets.add(bet)
 
                 if (bet.amount == desiredNumberOfElements) {
-                    if (closeConnectionWhenSatisfied) {
-                        session.close(CloseStatus.NORMAL)
-                    } else {
-                        Thread.sleep(200)
-                    }
-
+                    session.close(CloseStatus.NORMAL)
                     result.complete(bets)
                 }
             }
