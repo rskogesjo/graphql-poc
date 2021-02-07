@@ -17,9 +17,9 @@ class PersonQueryResolver(
     fun getOne(id: Int) = repository.findById(id)
 
     fun getByDataLoader(ids: List<Int>): List<Person> {
-        val loadMany = personDataLoader.loadMany(ids)
+        val promise = personDataLoader.loadMany(ids)
         personDataLoader.dispatch()
 
-        return loadMany.get()
+        return promise.get()
     }
 }
