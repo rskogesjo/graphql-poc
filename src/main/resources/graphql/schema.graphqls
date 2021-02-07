@@ -13,6 +13,7 @@ type Bet {
 type Query{
     getAll: [Person]
     getOne(id: Int): Person
+    getByDataLoader(ids:[Int]): [Person]
 }
 
 type Mutation{

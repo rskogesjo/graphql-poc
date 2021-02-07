@@ -1,6 +1,6 @@
 package poc.resolver
 
-import com.coxautodev.graphql.tools.GraphQLSubscriptionResolver
+import graphql.kickstart.tools.GraphQLSubscriptionResolver
 import org.reactivestreams.Publisher
 import org.springframework.stereotype.Component
 import poc.model.Bet
