@@ -28,25 +28,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.graphql-java-kickstart</groupId>
+            <groupId>com.graphql-java</groupId>
             <artifactId>graphql-spring-boot-starter</artifactId>
-            <version>${graphql-spring-boot.version}</version>
+            <version>${graphql.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.graphql-java-kickstart</groupId>
+            <groupId>com.graphql-java</groupId>
             <artifactId>graphiql-spring-boot-starter</artifactId>
-            <version>${graphql-spring-boot.version}</version>
+            <version>${graphql.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.graphql-java-kickstart</groupId>
+            <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java-tools</artifactId>
-            <version>${graphql-spring-boot.version}</version>
+            <version>${graphql-java-tools.version}</version>
         </dependency>
 
         <dependency>
@@ -66,11 +60,11 @@
         </dependency>
 
         <dependency>
-            <groupId>com.graphql-java-kickstart</groupId>
+            <groupId>com.graphql-java</groupId>
             <artifactId>graphql-spring-boot-starter-test</artifactId>
-            <version>${graphql-spring-boot.version}</version>
+            <version>${graphql.version}</version>
+            <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit</artifactId>

@@ -1,10 +1,9 @@
 package poc.resolver
 
-import graphql.kickstart.tools.GraphQLQueryResolver
+import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import org.dataloader.DataLoader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import poc.loader.PersonBatchLoader
 import poc.model.Person
 import poc.repository.PersonRepository
 

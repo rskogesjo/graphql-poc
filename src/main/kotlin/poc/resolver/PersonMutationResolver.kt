@@ -1,6 +1,6 @@
 package poc.resolver
 
-import graphql.kickstart.tools.GraphQLMutationResolver
+import com.coxautodev.graphql.tools.GraphQLMutationResolver
 import org.dataloader.DataLoader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
