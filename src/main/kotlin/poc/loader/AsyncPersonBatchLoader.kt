@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 
 @Component
-class PersonBatchLoader(private val repository: PersonRepository) : BatchLoader<Int, Person> {
+class AsyncPersonBatchLoader(private val repository: PersonRepository) : BatchLoader<Int, Person> {
     override fun load(ids: List<Int>): CompletionStage<List<Person>> {
         return CompletableFuture.supplyAsync { getAllPersons(ids) }
     }

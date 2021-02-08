@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import poc.model.Person
 
 @Component
-class PersonDataLoader(@Autowired private val personBatchLoader: PersonBatchLoader) {
+class PersonDataLoader(@Autowired private val asyncPersonBatchLoader: AsyncPersonBatchLoader) {
     @Bean
-    fun dataLoader(): DataLoader<Int, Person> = DataLoader.newDataLoader(personBatchLoader)
+    fun dataLoader(): DataLoader<Int, Person> = DataLoader.newDataLoader(asyncPersonBatchLoader)
 }
