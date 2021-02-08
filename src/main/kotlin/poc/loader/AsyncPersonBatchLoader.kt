@@ -13,7 +13,5 @@ class AsyncPersonBatchLoader(private val repository: PersonRepository) : BatchLo
         return CompletableFuture.supplyAsync { getAllPersons(ids) }
     }
 
-    private fun getAllPersons(ids: List<Int>): List<Person> {
-        return ids.map { repository.findById(it).get() }
-    }
+    private fun getAllPersons(ids: List<Int>): List<Person> = repository.findAllById(ids)
 }
