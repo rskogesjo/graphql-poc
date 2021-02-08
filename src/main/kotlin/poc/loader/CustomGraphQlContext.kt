@@ -19,6 +19,7 @@ open class CustomGraphQlContext(
         const val PERSON_DATA_LOADER = "personDataLoader"
     }
 
+    @Override
     override fun build(httpServletRequest: HttpServletRequest): GraphQLContext {
         val context = GraphQLContext(httpServletRequest)
         context.setDataLoaderRegistry(createDataLoaderRegistry())
