@@ -9,7 +9,6 @@ import java.util.concurrent.CompletionStage
 
 @Component
 class AsyncPersonBatchLoader(private val repository: PersonRepository) : BatchLoader<Int, Person> {
-    override fun load(ids: List<Int>): CompletionStage<List<Person>> = supplyAsync { getAllPersons(ids) }
-
-    private fun getAllPersons(ids: List<Int>): List<Person> = repository.findAllById(ids)
+    @Override
+    override fun load(ids: List<Int>): CompletionStage<List<Person>> = supplyAsync { repository.findAllById(ids) }
 }
