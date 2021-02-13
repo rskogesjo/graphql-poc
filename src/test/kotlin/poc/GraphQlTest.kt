@@ -76,7 +76,8 @@ class GraphQlTest {
 
     @Test
     fun `get using data loader`() {
-        repeat(5, createPerson())
+        val numberOfPersons = 5L
+        repeat(numberOfPersons.toInt(), createPerson())
 
         val rawResponse = graphQLTestTemplate.postForResource("graphql/get-using-data-loader.graphql")
         assertTrue(rawResponse.isOk)
@@ -91,7 +92,7 @@ class GraphQlTest {
 
         assertThat(personDataLoader.statistics.cacheHitCount).isZero
         assertTrue(graphQLTestTemplate.postForResource("graphql/get-using-data-loader.graphql").isOk)
-        assertThat(personDataLoader.statistics.cacheHitCount).isGreaterThan(0)
+        assertThat(personDataLoader.statistics.cacheHitCount).isEqualTo(numberOfPersons)
     }
 
     @Test
