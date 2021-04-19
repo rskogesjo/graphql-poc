@@ -25,24 +25,20 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import poc.model.Bet
 import poc.model.Person
-import util.CustomMetricsInstrumentation
 import util.TestUtils
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
-import kotlin.test.assertNull
+import kotlin.test.assertNotNull
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(
-    classes = [CustomMetricsInstrumentation::class, Application::class],
+    classes = [Application::class],
     webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT
 )
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class GraphQlTest {
     @Autowired
     private lateinit var graphQLTestTemplate: GraphQLTestTemplate
-
-    @Autowired
-    private lateinit var instrumentation: CustomMetricsInstrumentation
 
     @Autowired
     private lateinit var personDataLoader: DataLoader<Int, Person>
@@ -76,7 +72,7 @@ class GraphQlTest {
 
     @Test
     fun `get using data loader`() {
-        val numberOfPersons = 5L
+        val numberOfPersons = 5.toLong()
         repeat(numberOfPersons.toInt(), createPerson())
 
         val rawResponse = graphQLTestTemplate.postForResource("graphql/get-using-data-loader.graphql")
@@ -112,42 +108,21 @@ class GraphQlTest {
 
     @Test
     internal fun `subscribe over websocket`() {
-        val desiredElements = 10
-
-        assertThat(subscriptionResult(desiredElements, "Lucky").size).isEqualTo(desiredElements)
-        assertThat(instrumentation.map["Lucky"]).isEqualTo(desiredElements)
+        assertNotNull(subscriptionResult())
     }
 
-    @Test
-    internal fun `No emitted elements if subscriber immediately disconnects`() {
-        val desiredElements = 10
-
-        assertThat(subscriptionResult(desiredElements, "Crazy", true).size).isZero
-        assertNull(instrumentation.map["Crazy"])
-    }
-
-    private fun subscriptionResult(
-        desiredNumberOfElements: Int,
-        subscriptionItem: String,
-        disconnectImmediately: Boolean = false
-    ): List<Bet> {
-        val result = CompletableFuture<List<Bet>>()
-        val bets = mutableListOf<Bet>()
+    private fun subscriptionResult(): Bet? {
+        val result = CompletableFuture<Bet>()
 
         WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
             @Override
             override fun afterConnectionEstablished(session: WebSocketSession) {
                 val executionInput = ExecutionInput
                     .newExecutionInput()
-                    .query(TestUtils.readTestData("graphql/subscription.graphql", subscriptionItem))
+                    .query(TestUtils.readTestData("graphql/subscription.graphql"))
                     .build()
 
                 session.sendMessage(TextMessage(objectMapper.writeValueAsString(executionInput)))
-
-                if (disconnectImmediately) {
-                    session.close(CloseStatus.NORMAL)
-                    result.complete(bets)
-                }
             }
 
             @Override
@@ -158,12 +133,8 @@ class GraphQlTest {
                     .toString()
 
                 val bet = objectMapper.readValue(asJson, Bet::class.java)
-                bets.add(bet)
-
-                if (bet.amount == desiredNumberOfElements) {
-                    session.close(CloseStatus.NORMAL)
-                    result.complete(bets)
-                }
+                result.complete(bet)
+                session.close(CloseStatus.NORMAL)
             }
         }, "ws://localhost:8080/subscriptions").start()
 

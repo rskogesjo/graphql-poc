@@ -4,13 +4,10 @@ import com.coxautodev.graphql.tools.GraphQLSubscriptionResolver
 import org.reactivestreams.Publisher
 import org.springframework.stereotype.Component
 import poc.model.Bet
-import reactor.core.publisher.Flux
-import java.lang.System.nanoTime
-import java.time.Duration.ofMillis
+import reactor.core.publisher.Sinks
+
 
 @Component
-class PersonSubscriptionResolver : GraphQLSubscriptionResolver {
-    fun bet(horse: String): Publisher<Bet> = Flux.range(1, 1000)
-        .delayElements(ofMillis(50))
-        .map { Bet(horse = horse, amount = it, timestamp = nanoTime().toString()) }
+class PersonSubscriptionResolver(private val sink: Sinks.Many<Bet>) : GraphQLSubscriptionResolver {
+    fun bet(): Publisher<Bet> = sink.asFlux()
 }

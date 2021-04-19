@@ -1,7 +1,6 @@
 subscription {
-    bet(horse: "PLACE_HOLDER") {
+    bet {
         horse
-        amount
-        timestamp
+        stake
     }
 }

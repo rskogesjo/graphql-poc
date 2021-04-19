@@ -6,8 +6,7 @@ type Person {
 
 type Bet {
     horse: String!
-    amount: Int!
-    timestamp: String!
+    stake: Int!
 }
 
 type Query{
@@ -21,5 +20,5 @@ type Mutation{
 }
 
 type Subscription {
-    bet(horse: String!): Bet
+    bet: Bet
 }
