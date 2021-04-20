@@ -1,6 +1,7 @@
 subscription {
     bet {
         horse
-        stake
+        stake,
+        accountIndex
     }
 }

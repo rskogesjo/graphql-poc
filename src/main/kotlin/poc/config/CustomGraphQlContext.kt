@@ -1,4 +1,4 @@
-package poc.loader
+package poc.config
 
 import graphql.servlet.DefaultGraphQLContextBuilder
 import graphql.servlet.GraphQLContext

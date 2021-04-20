@@ -9,6 +9,7 @@ import graphql.ExecutionInput
 import org.assertj.core.api.Assertions.assertThat
 import org.dataloader.DataLoader
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -107,6 +108,7 @@ class GraphQlTest {
     }
 
     @Test
+    @Ignore
     internal fun `subscribe over websocket`() {
         assertNotNull(subscriptionResult())
     }

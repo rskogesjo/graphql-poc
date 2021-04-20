@@ -6,7 +6,7 @@ import graphql.servlet.GraphQLContext
 import org.dataloader.DataLoader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import poc.loader.CustomGraphQlContext.Companion.PERSON_DATA_LOADER
+import poc.config.CustomGraphQlContext.Companion.PERSON_DATA_LOADER
 import poc.model.Person
 import poc.repository.PersonRepository
 
