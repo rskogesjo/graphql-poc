@@ -16,7 +16,7 @@ class TokenInterceptor(private val cacheConfig: CacheConfig) : Filter {
             val token = request.getHeader(HttpHeaders.AUTHORIZATION)
 
             if (token != null) {
-                cacheConfig.cache.add(token)
+                cacheConfig.cache[token] = token.replace("-Token", "")
             }
         }
 

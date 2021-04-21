@@ -13,8 +13,9 @@ class PersonSubscriptionResolver(
     private val sink: Sinks.Many<Bet>,
     private val cacheConfig: CacheConfig
 ) : GraphQLSubscriptionResolver {
+    fun bet(authorization: String): Publisher<Bet> {
+        val criteria = cacheConfig.cache[authorization] + "-Token"
 
-    fun bet(): Publisher<Bet> {
-        return sink.asFlux().filter { cacheConfig.cache.contains(it.accountIndex) }
+        return sink.asFlux().filter { it.accountIndex == criteria }
     }
 }
