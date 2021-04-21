@@ -13,10 +13,10 @@ class TokenInterceptor(private val cacheConfig: CacheConfig) : Filter {
     @Override
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         if ((request as HttpServletRequest).requestURL.endsWith("/subscriptions")) {
-            val accountIndex = request.getHeader(HttpHeaders.AUTHORIZATION)
+            val token = request.getHeader(HttpHeaders.AUTHORIZATION)
 
-            if (accountIndex != null) {
-                cacheConfig.cache.add(accountIndex)
+            if (token != null) {
+                cacheConfig.cache.add(token)
             }
         }
 
