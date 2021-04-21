@@ -12,7 +12,9 @@ import javax.servlet.http.HttpServletRequest
 class TokenInterceptor(private val cacheConfig: CacheConfig) : Filter {
     @Override
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        if ((request as HttpServletRequest).requestURL.endsWith("/subscriptions")) {
+        val httpServletRequest = request as HttpServletRequest
+
+        if (httpServletRequest.requestURL.endsWith("/subscriptions")) {
             val token = request.getHeader(HttpHeaders.AUTHORIZATION)
 
             if (token != null) {

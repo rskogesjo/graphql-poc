@@ -14,6 +14,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD
 import org.springframework.test.context.junit4.SpringRunner
@@ -108,7 +109,6 @@ class GraphQlTest {
     }
 
     @Test
-    @Ignore
     internal fun `subscribe over websocket`() {
         assertNotNull(subscriptionResult())
     }
@@ -116,31 +116,39 @@ class GraphQlTest {
     private fun subscriptionResult(): Bet? {
         val result = CompletableFuture<Bet>()
 
-        WebSocketConnectionManager(StandardWebSocketClient(), object : TextWebSocketHandler() {
-            @Override
-            override fun afterConnectionEstablished(session: WebSocketSession) {
-                val executionInput = ExecutionInput
-                    .newExecutionInput()
-                    .query(TestUtils.readTestData("graphql/subscription.graphql"))
-                    .build()
+        val manager = WebSocketConnectionManager(
+            StandardWebSocketClient(),
+            handler(result),
+            "ws://localhost:8080/subscriptions"
+        ).apply { headers[HttpHeaders.AUTHORIZATION] = listOf("Some AT") }
 
-                session.sendMessage(TextMessage(objectMapper.writeValueAsString(executionInput)))
-            }
-
-            @Override
-            override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
-                val asJson = objectMapper.readValue<JsonNode>(message.payload as String)
-                    .path("data")
-                    .path("bet")
-                    .toString()
-
-                val bet = objectMapper.readValue(asJson, Bet::class.java)
-                result.complete(bet)
-                session.close(CloseStatus.NORMAL)
-            }
-        }, "ws://localhost:8080/subscriptions").start()
+        manager.start()
 
         return result.get(5, TimeUnit.SECONDS)
+    }
+
+    private fun handler(result: CompletableFuture<Bet>) = object : TextWebSocketHandler() {
+        @Override
+        override fun afterConnectionEstablished(session: WebSocketSession) {
+            val executionInput = ExecutionInput
+                .newExecutionInput()
+                .query(TestUtils.readTestData("graphql/subscription.graphql"))
+                .build()
+
+            session.sendMessage(TextMessage(objectMapper.writeValueAsString(executionInput)))
+        }
+
+        @Override
+        override fun handleMessage(session: WebSocketSession, message: WebSocketMessage<*>) {
+            val asJson = objectMapper.readValue<JsonNode>(message.payload as String)
+                .path("data")
+                .path("bet")
+                .toString()
+
+            val bet = objectMapper.readValue(asJson, Bet::class.java)
+            result.complete(bet)
+            session.close(CloseStatus.NORMAL)
+        }
     }
 
     private fun createPerson(): (Int) -> Unit = { graphQLTestTemplate.postForResource("graphql/create.graphql") }
