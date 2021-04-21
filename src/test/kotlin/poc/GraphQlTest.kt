@@ -114,13 +114,14 @@ class GraphQlTest {
     }
 
     private fun subscriptionResult(): Bet? {
+        val token = "Robin-Token"
         val result = CompletableFuture<Bet>()
 
         val manager = WebSocketConnectionManager(
             StandardWebSocketClient(),
             handler(result),
             "ws://localhost:8080/subscriptions"
-        ).apply { headers[HttpHeaders.AUTHORIZATION] = listOf("Some AT") }
+        ).apply { headers[HttpHeaders.AUTHORIZATION] = listOf(token) }
 
         manager.start()
 

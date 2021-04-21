@@ -14,8 +14,8 @@ class PersonSubscriptionResolver(
     private val cacheConfig: CacheConfig
 ) : GraphQLSubscriptionResolver {
     fun bet(authorization: String): Publisher<Bet> {
-        val name = cacheConfig.cache["$authorization-Token"]
+        val token = cacheConfig.cache["$authorization-Token"]
 
-        return sink.asFlux().filter { it.accountIndex == name }
+        return sink.asFlux().filter { it.horse == token }
     }
 }

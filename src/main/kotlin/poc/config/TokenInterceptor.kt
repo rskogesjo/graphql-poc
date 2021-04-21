@@ -11,17 +11,17 @@ import javax.servlet.http.HttpServletRequest
 @Component
 class TokenInterceptor(private val cacheConfig: CacheConfig) : Filter {
     @Override
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        val httpServletRequest = request as HttpServletRequest
+    override fun doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
+        val request = servletRequest as HttpServletRequest
 
-        if (httpServletRequest.requestURL.endsWith("/subscriptions")) {
-            val token = request.getHeader(HttpHeaders.AUTHORIZATION)
+        if (request.requestURL.endsWith("/subscriptions")) {
+            val token = servletRequest.getHeader(HttpHeaders.AUTHORIZATION)
 
             if (token != null) {
                 cacheConfig.cache[token] = token.replace("-Token", "")
             }
         }
 
-        chain.doFilter(request, response)
+        filterChain.doFilter(servletRequest, servletResponse)
     }
 }

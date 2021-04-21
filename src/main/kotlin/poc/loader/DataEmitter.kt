@@ -7,31 +7,41 @@ import poc.model.Bet
 import reactor.core.publisher.Sinks
 import reactor.core.publisher.Sinks.EmitFailureHandler.FAIL_FAST
 import java.util.*
+import javax.annotation.PostConstruct
 
 @Component
 @EnableScheduling
 class DataEmitter(private val sink: Sinks.Many<Bet>) {
     private val randomizer = Random(System.currentTimeMillis())
-    private val accountIndex = listOf(
+    private val horses = listOf(
         "Robin",
         "Sarah",
         "Varun",
         "Abhi"
     )
 
+    @PostConstruct
+    private fun init() {
+        sink.emitNext(
+            Bet(
+                horse = "Robin",
+                stake = randomizer.nextInt()
+            ), FAIL_FAST
+        )
+    }
+
     /**
      *  A real emitter would emit data received over some kind of JMS its listening to
      */
     @Scheduled(fixedDelay = 1000)
     fun emitData() {
-        val index = randomizer.nextInt(accountIndex.size)
-        val horse = accountIndex[index]
+        val index = randomizer.nextInt(horses.size)
+        val horse = horses[index]
 
         sink.emitNext(
             Bet(
                 horse = horse,
-                stake = randomizer.nextInt(),
-                accountIndex = horse
+                stake = randomizer.nextInt()
             ), FAIL_FAST
         )
     }

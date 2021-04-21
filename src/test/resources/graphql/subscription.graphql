@@ -1,7 +1,6 @@
 subscription {
-    bet(authorization : "Sarah") {
+    bet(authorization : "Robin") {
         horse
-        stake,
-        accountIndex
+        stake
     }
 }
