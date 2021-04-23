@@ -4,6 +4,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import poc.model.Bet
+import poc.model.RaceResult
 import reactor.core.publisher.Sinks
 import reactor.core.publisher.Sinks.EmitFailureHandler.FAIL_FAST
 import java.util.*
@@ -11,7 +12,10 @@ import javax.annotation.PostConstruct
 
 @Component
 @EnableScheduling
-class DataEmitter(private val sink: Sinks.Many<Bet>) {
+class DataEmitter(
+    private val betSink: Sinks.Many<Bet>,
+    private val raceSink: Sinks.Many<RaceResult>
+) {
     private val randomizer = Random(System.currentTimeMillis())
     private val horses = listOf(
         "Robin",
@@ -22,7 +26,7 @@ class DataEmitter(private val sink: Sinks.Many<Bet>) {
 
     @PostConstruct
     private fun init() {
-        sink.emitNext(
+        betSink.emitNext(
             Bet(
                 horse = "Robin",
                 stake = randomizer.nextInt()
@@ -30,19 +34,26 @@ class DataEmitter(private val sink: Sinks.Many<Bet>) {
         )
     }
 
-    /**
-     *  A real emitter would emit data received over some kind of JMS its listening to
-     */
     @Scheduled(fixedDelay = 1000)
-    fun emitData() {
+    fun emitBetData() {
         val index = randomizer.nextInt(horses.size)
         val horse = horses[index]
 
-        sink.emitNext(
+        betSink.emitNext(
             Bet(
                 horse = horse,
                 stake = randomizer.nextInt()
             ), FAIL_FAST
+        )
+    }
+
+    @Scheduled(fixedDelay = 3000)
+    fun emitRacingData() {
+        val winner = randomizer.nextInt(15) + 1
+
+        raceSink.emitNext(
+            RaceResult(winner = winner),
+            FAIL_FAST
         )
     }
 }

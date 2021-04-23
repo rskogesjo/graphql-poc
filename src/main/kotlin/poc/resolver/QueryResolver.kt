@@ -8,10 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import poc.config.CustomGraphQlContext.Companion.PERSON_DATA_LOADER
 import poc.model.Person
+import poc.model.RaceResult
 import poc.repository.PersonRepository
 
 @Component
-class PersonQueryResolver(@Autowired private val repository: PersonRepository) : GraphQLQueryResolver {
+class QueryResolver(@Autowired private val repository: PersonRepository) : GraphQLQueryResolver {
     fun getAll() = repository.findAll()
 
     fun getOne(id: Int) = repository.findById(id)
@@ -24,6 +25,8 @@ class PersonQueryResolver(@Autowired private val repository: PersonRepository) :
 
         return promise.get()
     }
+
+    fun getRaceResult() = RaceResult(winner = 0)
 
     private fun personDataLoader(environment: DataFetchingEnvironment): DataLoader<Int, Person> {
         val context = environment.getContext<GraphQLContext>()

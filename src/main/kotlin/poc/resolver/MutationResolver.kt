@@ -7,6 +7,6 @@ import poc.model.Person
 import poc.repository.PersonRepository
 
 @Component
-class PersonMutationResolver(@Autowired private val repository: PersonRepository) : GraphQLMutationResolver {
+class MutationResolver(@Autowired private val repository: PersonRepository) : GraphQLMutationResolver {
     fun createPerson(name: String, age: Int) = repository.save(Person(name = name, age = age))
 }

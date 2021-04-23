@@ -9,12 +9,10 @@ import graphql.ExecutionInput
 import org.assertj.core.api.Assertions.assertThat
 import org.dataloader.DataLoader
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpHeaders
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD
 import org.springframework.test.context.junit4.SpringRunner
@@ -111,6 +109,17 @@ class GraphQlTest {
     @Test
     internal fun `subscribe over websocket`() {
         assertNotNull(subscriptionResult())
+    }
+
+    @Test
+    fun `fetch dummy race result`() {
+        val rawResponse = graphQLTestTemplate.postForResource("graphql/fetch-race-result.graphql")
+
+        val response = rawResponse.readTree()
+        val raceResultResponse = response.path("data").path("getRaceResult")
+
+        assertTrue(rawResponse.isOk)
+        assertThat(raceResultResponse.path("winner").asInt()).isEqualTo(0)
     }
 
     private fun subscriptionResult(): Bet? {

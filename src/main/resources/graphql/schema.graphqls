@@ -9,10 +9,15 @@ type Bet {
     stake: Int!
 }
 
+type RaceResult{
+    winner: Int!
+}
+
 type Query{
     getAll: [Person]
     getOne(id: Int): Person
     getByDataLoader(ids:[Int]): [Person]
+    getRaceResult:RaceResult
 }
 
 type Mutation{
@@ -21,4 +26,5 @@ type Mutation{
 
 type Subscription {
     bet(authorization:String!): Bet
+    race:RaceResult
 }
