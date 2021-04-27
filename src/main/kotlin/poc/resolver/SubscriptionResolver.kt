@@ -4,16 +4,22 @@ import com.coxautodev.graphql.tools.GraphQLSubscriptionResolver
 import org.reactivestreams.Publisher
 import org.springframework.stereotype.Component
 import poc.model.Bet
-import poc.model.RaceResult
+import poc.model.Result
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Sinks
+import java.time.Duration.ofSeconds
 
 
 @Component
-class SubscriptionResolver(
-    private val betSink: Sinks.Many<Bet>,
-    private val raceSink: Sinks.Many<RaceResult>
-) : GraphQLSubscriptionResolver {
+class SubscriptionResolver(private val betSink: Sinks.Many<Bet>) : GraphQLSubscriptionResolver {
     fun bet(authorization: String): Publisher<Bet> = betSink.asFlux().filter { it.horse == authorization }
 
-    fun race(): Publisher<RaceResult> = raceSink.asFlux()
+    fun onNewResult(raceId: String): Publisher<Result> {
+        return Flux.range(1, 6)
+            .delayElements(ofSeconds(1))
+            .map {
+                Result(id = it.toString(), winner = it)
+            }
+    }
+
 }

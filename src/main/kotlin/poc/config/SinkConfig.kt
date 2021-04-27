@@ -10,7 +10,4 @@ import reactor.core.publisher.Sinks
 open class SinkConfig {
     @Bean
     open fun createBetData(): Sinks.Many<Bet> = Sinks.many().replay().all()
-
-    @Bean
-    open fun createRacingData(): Sinks.Many<RaceResult> = Sinks.many().replay().all()
 }

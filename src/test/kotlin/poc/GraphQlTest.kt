@@ -25,6 +25,9 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import poc.model.Bet
 import poc.model.Person
+import poc.model.RaceResult
+import poc.model.Result
+import reactor.core.publisher.Flux
 import util.TestUtils
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -111,17 +114,6 @@ class GraphQlTest {
         assertNotNull(subscriptionResult())
     }
 
-    @Test
-    fun `fetch dummy race result`() {
-        val rawResponse = graphQLTestTemplate.postForResource("graphql/fetch-race-result.graphql")
-
-        val response = rawResponse.readTree()
-        val raceResultResponse = response.path("data").path("getRaceResult")
-
-        assertTrue(rawResponse.isOk)
-        assertThat(raceResultResponse.path("winner").asInt()).isEqualTo(0)
-    }
-
     private fun subscriptionResult(): Bet? {
         val result = CompletableFuture<Bet>()
 
@@ -158,6 +150,19 @@ class GraphQlTest {
             result.complete(bet)
             session.close(CloseStatus.NORMAL)
         }
+    }
+
+    @Test
+    fun `some flux`() {
+        val races = listOf(
+            Result(id = 2.toString(), winner = 2),
+            Result(id = 3.toString(), winner = 3),
+            Result(id = 4.toString(), winner = 4),
+            Result(id = 5.toString(), winner = 5),
+            Result(id = 6.toString(), winner = 6),
+            Result(id = 7.toString(), winner = 7)
+        )
+        Flux.range(1, 6).map { RaceResult(races = races.subList(0, it)) }.subscribe { println(it) }
     }
 
     private fun createPerson(): (Int) -> Unit = { graphQLTestTemplate.postForResource("graphql/create.graphql") }
