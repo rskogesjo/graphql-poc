@@ -15,7 +15,7 @@ class SubscriptionResolver(private val betSink: Sinks.Many<Bet>) : GraphQLSubscr
     fun bet(authorization: String): Publisher<Bet> = betSink.asFlux().filter { it.horse == authorization }
 
     fun onNewResult(raceId: String): Publisher<Result> {
-        return Flux.range(1, 6)
+        return Flux.range(2, 6)
             .delayElements(ofSeconds(1))
             .map {
                 Result(id = it.toString(), winner = it)
