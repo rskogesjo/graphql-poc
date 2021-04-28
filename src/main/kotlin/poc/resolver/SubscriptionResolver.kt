@@ -16,7 +16,7 @@ class SubscriptionResolver(private val betSink: Sinks.Many<Bet>) : GraphQLSubscr
 
     fun onNewResult(raceId: String): Publisher<Result> {
         return Flux.range(2, 6)
-            .delayElements(ofSeconds(1))
+            .delayElements(ofSeconds(2))
             .map {
                 Result(id = it.toString(), winner = it)
             }
